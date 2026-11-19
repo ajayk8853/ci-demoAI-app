@@ -10,4 +10,14 @@ public interface PipelineRunRepository
         extends JpaRepository<PipelineRun, Long> {
 
     List<PipelineRun> findByRunIdIn(Collection<Long> runIds);
+
+    long countByConclusionIgnoreCase(String conclusion);
+
+    java.util.Optional<PipelineRun> findTopByConclusionIgnoreCaseOrderByCreatedAtDesc(String conclusion);
+
+    java.util.Optional<PipelineRun> findByRunId(Long runId);
+
+    java.util.Optional<PipelineRun> findTopByConclusionIgnoreCaseAndCreatedAtBeforeOrderByCreatedAtDesc(
+            String conclusion, java.time.LocalDateTime createdAt);
+
 }

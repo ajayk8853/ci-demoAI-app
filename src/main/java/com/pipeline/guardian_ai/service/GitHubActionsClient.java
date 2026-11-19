@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -80,6 +81,37 @@ public class GitHubActionsClient {
             if (response.workflowRuns().size() < PAGE_SIZE) {
                 return runs;
             }
+        }
+    }
+
+    public byte[] downloadLogs(Long runId) {
+        if (owner.isBlank() || repository.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Configure GITHUB_OWNER and GITHUB_REPOSITORY before downloading logs");
+        }
+        String location = "/repos/{owner}/{repo}/actions/runs/{runId}/logs";
+        try {
+            ResponseEntity<byte[]> response = client.get()
+                    .uri(location, owner, repository, runId)
+                    .headers(headers -> {
+                        if (!token.isBlank()) headers.setBearerAuth(token);
+                    })
+                    .retrieve()
+                    .toEntity(byte[].class);
+            if (response.getHeaders().getLocation() != null) {
+                ResponseEntity<byte[]> redirected = client.get()
+                        .uri(response.getHeaders().getLocation())
+                        .retrieve().toEntity(byte[].class);
+                return redirected.getBody() == null ? new byte[0] : redirected.getBody();
+            }
+            return response.getBody() == null ? new byte[0] : response.getBody();
+        } catch (RestClientResponseException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                    "GitHub returned HTTP " + ex.getStatusCode().value()
+                            + " while downloading logs", ex);
+        } catch (RestClientException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                    "Could not download workflow logs", ex);
         }
     }
 }

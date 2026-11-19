@@ -21,3 +21,6 @@ github:
   token: ${GITHUB_TOKEN:}
   owner: ${GITHUB_OWNER:}
   repository: ${GITHUB_REPOSITORY:}
+
+openai:
+  api-key: ${OPENAI_API_KEY:}

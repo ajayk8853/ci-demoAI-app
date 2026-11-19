@@ -1,8 +1,10 @@
 package com.pipeline.guardian_ai.controller;
 
+import com.pipeline.guardian_ai.dto.ReliabilityDto;
 import com.pipeline.guardian_ai.entity.PipelineRun;
 import com.pipeline.guardian_ai.repository.PipelineRunRepository;
 import com.pipeline.guardian_ai.service.PipelineSyncService;
+import com.pipeline.guardian_ai.service.ReliabilityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,7 @@ public class PipelineController {
 
   private final PipelineRunRepository repository;
   private final PipelineSyncService syncService;
+  private final ReliabilityService reliabilityService;
 
     @GetMapping
     public List<PipelineRun> getAllRuns() {
@@ -27,6 +30,11 @@ public class PipelineController {
     @PostMapping("/sync")
     public SyncResult syncRuns() {
         return new SyncResult(syncService.sync());
+    }
+
+    @GetMapping("/reliability")
+    public ReliabilityDto getReliability() {
+        return reliabilityService.calculate();
     }
 
     @ExceptionHandler(ResponseStatusException.class)

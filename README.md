@@ -50,3 +50,28 @@ from before GitHub integration may have no repository or conclusion.
 This is a local development API with no authentication; protect it before
 exposing it on a network. GitHub API errors, including rate limits and invalid
 tokens, cause sync to fail without saving a partial history.
+
+## Current backend API
+
+After starting the service, these endpoints are available:
+
+```powershell
+Invoke-RestMethod http://localhost:8080/api/pipelines
+Invoke-RestMethod -Method Post http://localhost:8080/api/pipelines/sync
+Invoke-RestMethod http://localhost:8080/api/pipelines/reliability
+Invoke-RestMethod http://localhost:8080/api/dashboard
+Invoke-RestMethod http://localhost:8080/api/issues
+Invoke-RestMethod -Method Post http://localhost:8080/api/pipelines/analyze/{runId}
+```
+
+`/api/pipelines/analyze/{runId}` uses deterministic pattern analysis by default.
+If you set `OPENAI_API_KEY`, it will also call OpenAI and persist AI analysis output.
+
+## Environment variables
+
+```powershell
+$env:GITHUB_OWNER = "ajayk8853"
+$env:GITHUB_REPOSITORY = "ci-demoAI-app"
+$env:GITHUB_TOKEN = ""   # optional for public repos
+$env:OPENAI_API_KEY = "" # optional
+```
