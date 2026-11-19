@@ -3,19 +3,20 @@ spring:
     name: guardian-ai
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/guardian?options=-c%20TimeZone=UTC
-    username: guardian
-    password: guardian
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/guardian?options=-c%20TimeZone=UTC}
+    username: ${SPRING_DATASOURCE_USERNAME:guardian}
+    password: ${SPRING_DATASOURCE_PASSWORD:guardian}
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false
     properties:
       hibernate.jdbc.time_zone: UTC
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 github:
   token: ${GITHUB_TOKEN:}

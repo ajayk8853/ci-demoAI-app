@@ -20,5 +20,23 @@ services:
       timeout: 5s
       retries: 10
 
+  backend:
+    build:
+      context: .
+    environment:
+      SERVER_PORT: 8080
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/guardian?options=-c%20TimeZone=UTC
+      SPRING_DATASOURCE_USERNAME: guardian
+      SPRING_DATASOURCE_PASSWORD: guardian
+      GITHUB_OWNER: ${GITHUB_OWNER:-ajayk8853}
+      GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-ci-demoAI-app}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
+
 volumes:
   postgres_data:

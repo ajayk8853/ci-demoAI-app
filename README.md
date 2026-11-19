@@ -9,6 +9,27 @@ docker compose up -d
 .\gradlew.bat bootRun
 ```
 
+## Run backend with Docker Compose
+
+Build the JAR and run backend + PostgreSQL in containers:
+
+```powershell
+.\gradlew.bat bootJar
+docker compose up -d --build
+```
+
+Verify health:
+
+```powershell
+Invoke-RestMethod http://localhost:8080/actuator/health
+```
+
+Stop containers:
+
+```powershell
+docker compose down
+```
+
 The Compose database uses a persistent named volume and the local development
 credentials from `src/main/resources/application.yaml`. Stop it with
 `docker compose down`; the data volume is retained.
@@ -75,3 +96,8 @@ $env:GITHUB_REPOSITORY = "ci-demoAI-app"
 $env:GITHUB_TOKEN = ""   # optional for public repos
 $env:OPENAI_API_KEY = "" # optional
 ```
+
+## Frontend status
+
+Frontend scaffolding is pending because Node.js is not available in the current environment yet.
+Once Node.js is installed, you can create and wire the React dashboard.
