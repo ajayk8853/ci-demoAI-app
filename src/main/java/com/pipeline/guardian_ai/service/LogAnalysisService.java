@@ -17,7 +17,7 @@ public class LogAnalysisService {
         patterns.put("Security or Permission", Pattern.compile("(?i)permission denied|unauthorized|forbidden|authentication failed"));
         patterns.put("Dependency or Package Installation", Pattern.compile("(?i)npm ERR|Could not resolve dependency|dependency resolution|package .*not found"));
         patterns.put("Docker Configuration", Pattern.compile("(?i)docker build failed|manifest unknown|docker daemon|container.*not found"));
-        patterns.put("Test Failure", Pattern.compile("(?i)tests? run:.*failures:|AssertionError|FAILED .*test|BUILD FAILURE"));
+        patterns.put("Test Failure", Pattern.compile("(?i)tests? run:.*failures:|AssertionError|FAILED .*test"));
         patterns.put("Compilation Failure", Pattern.compile("(?i)compilation failed|cannot find symbol|syntax error|TypeScript error"));
     }
 
@@ -30,4 +30,3 @@ public class LogAnalysisService {
         return matches;
     }
 }
-

@@ -16,9 +16,9 @@ public class ReliabilityService {
         long total = repository.count();
         long successful = repository.countByConclusionIgnoreCase("success");
         long failed = repository.countByConclusionIgnoreCase("failure");
-        double score = total == 0 ? 0 : successful * 100.0 / total;
+        long completedOutcomes = successful + failed;
+        double score = completedOutcomes == 0 ? 0 : successful * 100.0 / completedOutcomes;
         return new ReliabilityDto(total, successful, failed,
                 Math.round(score * 100.0) / 100.0);
     }
 }
-

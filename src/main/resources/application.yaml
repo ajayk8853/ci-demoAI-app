@@ -35,8 +35,8 @@ management:
 
 github:
   token: ${GITHUB_TOKEN:}
-  owner: ${GITHUB_OWNER:}
-  repository: ${GITHUB_REPOSITORY:}
+  owner: ${GITHUB_OWNER:ajayk8853}
+  repository: ${GITHUB_REPOSITORY:ci-demoAI-app}
 
 pipeline:
   provider: ${PIPELINE_PROVIDER:github}

@@ -11,17 +11,16 @@ class ReliabilityServiceTest {
     @Test
     void calculatesReliabilityFromRepositoryCounts() {
         PipelineRunRepository repository = mock(PipelineRunRepository.class);
-        when(repository.count()).thenReturn(10L);
+        when(repository.count()).thenReturn(14L);
         when(repository.countByConclusionIgnoreCase("success")).thenReturn(8L);
         when(repository.countByConclusionIgnoreCase("failure")).thenReturn(2L);
 
         ReliabilityService service = new ReliabilityService(repository);
         ReliabilityDto dto = service.calculate();
 
-        assertThat(dto.totalRuns()).isEqualTo(10);
+        assertThat(dto.totalRuns()).isEqualTo(14);
         assertThat(dto.successfulRuns()).isEqualTo(8);
         assertThat(dto.failedRuns()).isEqualTo(2);
         assertThat(dto.reliabilityScore()).isEqualTo(80.0);
     }
 }
-

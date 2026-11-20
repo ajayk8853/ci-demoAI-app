@@ -8,13 +8,20 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ComparisonService {
-    public ComparisonDto compare(PipelineRun failed, PipelineRun success, List<String> patterns) {
+    public ComparisonDto compare(PipelineRun failed, PipelineRun success, List<String> patterns,
+                                 List<String> successfulPatterns) {
         List<String> differences = new ArrayList<>();
         if (success == null) {
             differences.add("No earlier successful run is available");
         } else {
             if (!safe(failed.getBranchName()).equals(safe(success.getBranchName()))) {
                 differences.add("Branch changed between runs");
+            }
+            if (successfulPatterns == null) {
+                differences.add("Successful run evidence could not be retrieved");
+            } else {
+                patterns.stream().filter(pattern -> !successfulPatterns.contains(pattern))
+                        .forEach(pattern -> differences.add("Failure-only pattern: " + pattern));
             }
             if (failed.getDurationSeconds() != null && success.getDurationSeconds() != null
                     && !failed.getDurationSeconds().equals(success.getDurationSeconds())) {
@@ -33,4 +40,3 @@ public class ComparisonService {
         return value == null ? "" : value;
     }
 }
-

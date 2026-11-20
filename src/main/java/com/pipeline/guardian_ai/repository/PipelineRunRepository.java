@@ -17,7 +17,8 @@ public interface PipelineRunRepository
 
     java.util.Optional<PipelineRun> findByRunId(Long runId);
 
-    java.util.Optional<PipelineRun> findTopByConclusionIgnoreCaseAndCreatedAtBeforeOrderByCreatedAtDesc(
-            String conclusion, java.time.LocalDateTime createdAt);
+    java.util.Optional<PipelineRun> findTopByConclusionIgnoreCaseAndRepositoryOwnerAndRepositoryNameAndWorkflowNameAndCreatedAtBeforeOrderByCreatedAtDesc(
+            String conclusion, String repositoryOwner, String repositoryName, String workflowName,
+            java.time.LocalDateTime createdAt);
 
 }

@@ -40,6 +40,22 @@ speaks the PostgreSQL protocol, not HTTP, so it cannot be opened in a browser.
 The container restores PostgreSQL's legacy `Asia/Calcutta` time-zone alias
 for JVMs that still use it. It is equivalent to `Asia/Kolkata`.
 
+## Run the frontend
+
+The React dashboard lives in `frontend/` and proxies `/api` requests to the local backend:
+
+```powershell
+Push-Location frontend
+npm ci
+npm run dev
+Pop-Location
+```
+
+By default, the frontend uses demo data (`VITE_DEMO_MODE=true` in
+`frontend/.env.local`). Copy `frontend/.env.example` to that file if needed,
+then set the value to `false` to use the backend API. The frontend
+build and lint checks run in GitHub Actions.
+
 ## Import GitHub Actions history
 
 Set the repository before starting the application. A token is optional for
@@ -68,6 +84,15 @@ other completed outcomes. Timestamps are stored in UTC. For completed runs,
 `updated_at`; it is unavailable while a run is in progress. Existing records
 from before GitHub integration may have no repository or conclusion.
 
+The reliability percentage uses completed successful and failed runs only;
+in-progress, cancelled, and other conclusions do not affect the denominator.
+Failure analysis compares a run with the previous successful run for the same
+repository and workflow, including failure-only log patterns when the earlier
+run's evidence is available. GitHub analysis includes log patterns and parses
+JUnit-style XML reports included in the downloaded log archive. Issue
+occurrences are counted once per distinct analyzed pipeline run, even if that
+run is analyzed more than once.
+
 This is a local development API with no authentication; protect it before
 exposing it on a network. GitHub API errors, including rate limits and invalid
 tokens, cause sync to fail without saving a partial history.
@@ -75,9 +100,9 @@ tokens, cause sync to fail without saving a partial history.
 ## Import Tekton PipelineRuns
 
 Guardian can poll Tekton `PipelineRun` resources from Kubernetes/EKS instead of GitHub Actions.
-Set `PIPELINE_PROVIDER=tekton`. When Guardian runs inside the cluster, Kubernetes service DNS,
-service-account token, and namespace are detected automatically. Set a namespace to limit the sync;
-leave it blank to list PipelineRuns across all namespaces.
+Set `PIPELINE_PROVIDER=tekton`. When Guardian runs inside the cluster, it detects the Kubernetes API
+address and service-account token. Set `TEKTON_NAMESPACE` to scope sync to a namespace; leave it
+blank to list PipelineRuns across all namespaces.
 
 ```powershell
 $env:PIPELINE_PROVIDER = "tekton"
@@ -100,12 +125,26 @@ metadata:
 rules:
   - apiGroups: ["tekton.dev"]
     resources: ["pipelineruns"]
-    verbs: ["get", "list", "watch"]
+    verbs: ["list"]
+  - apiGroups: ["tekton.dev"]
+    resources: ["taskruns"]
+    verbs: ["get"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
 ```
 
 Bind this role to the Kubernetes ServiceAccount used by the Guardian backend. The screenshot's
 Tekton dashboard has no rows because it only shows runs stored in Kubernetes; Guardian synchronization
 will independently import those resources into PostgreSQL.
+
+Tekton analysis reads the PipelineRun condition and TaskRun step logs through the Kubernetes API.
+The RBAC rules above are required for that evidence collection. Tekton test reports are not yet
+collected from workspace/artifact storage; JUnit XML parsing currently applies to XML files in
+downloaded GitHub Actions log archives.
 
 ## Current backend API
 
@@ -121,7 +160,10 @@ Invoke-RestMethod -Method Post http://localhost:8080/api/pipelines/analyze/{runI
 ```
 
 `/api/pipelines/analyze/{runId}` uses deterministic pattern analysis by default.
-If you set `OPENAI_API_KEY`, it will also call OpenAI and persist AI analysis output.
+If you set `OPENAI_API_KEY`, it also sends summaries of failed and previously
+successful pipeline logs to OpenAI after redacting common credential patterns,
+then persists its analysis. Redaction is best-effort; review your organization's
+log-sharing policy before enabling the key.
 
 ## Environment variables
 
@@ -134,5 +176,5 @@ $env:OPENAI_API_KEY = "" # optional
 
 ## Frontend status
 
-Frontend scaffolding is pending because Node.js is not available in the current environment yet.
-Once Node.js is installed, you can create and wire the React dashboard.
+The dashboard supports overview metrics, pipeline run search/status filters, issue patterns,
+failure analysis, and manual synchronization. Set `VITE_DEMO_MODE=false` for live API data.
