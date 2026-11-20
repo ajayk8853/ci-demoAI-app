@@ -32,6 +32,11 @@ services:
       GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-ci-demoAI-app}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      PIPELINE_PROVIDER: ${PIPELINE_PROVIDER:-github}
+      TEKTON_API_URL: ${TEKTON_API_URL:-}
+      TEKTON_NAMESPACE: ${TEKTON_NAMESPACE:-}
+      TEKTON_TOKEN: ${TEKTON_TOKEN:-}
+      TEKTON_INSECURE_SKIP_TLS_VERIFY: ${TEKTON_INSECURE_SKIP_TLS_VERIFY:-false}
     depends_on:
       postgres:
         condition: service_healthy

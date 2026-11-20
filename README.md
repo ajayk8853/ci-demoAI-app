@@ -72,6 +72,41 @@ This is a local development API with no authentication; protect it before
 exposing it on a network. GitHub API errors, including rate limits and invalid
 tokens, cause sync to fail without saving a partial history.
 
+## Import Tekton PipelineRuns
+
+Guardian can poll Tekton `PipelineRun` resources from Kubernetes/EKS instead of GitHub Actions.
+Set `PIPELINE_PROVIDER=tekton`. When Guardian runs inside the cluster, Kubernetes service DNS,
+service-account token, and namespace are detected automatically. Set a namespace to limit the sync;
+leave it blank to list PipelineRuns across all namespaces.
+
+```powershell
+$env:PIPELINE_PROVIDER = "tekton"
+$env:TEKTON_NAMESPACE = "tekton-pipelines" # or blank for all namespaces
+.\gradlew.bat bootRun
+
+Invoke-RestMethod -Method Post http://localhost:8080/api/pipelines/sync
+Invoke-RestMethod http://localhost:8080/api/pipelines
+```
+
+When running outside the cluster, set `TEKTON_API_URL` and `TEKTON_TOKEN`; for a development-only
+self-signed API server set `TEKTON_INSECURE_SKIP_TLS_VERIFY=true`. The service account needs read
+access to `tekton.dev/pipelineruns`:
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: guardian-ai-pipelineruns-reader
+rules:
+  - apiGroups: ["tekton.dev"]
+    resources: ["pipelineruns"]
+    verbs: ["get", "list", "watch"]
+```
+
+Bind this role to the Kubernetes ServiceAccount used by the Guardian backend. The screenshot's
+Tekton dashboard has no rows because it only shows runs stored in Kubernetes; Guardian synchronization
+will independently import those resources into PostgreSQL.
+
 ## Current backend API
 
 After starting the service, these endpoints are available:

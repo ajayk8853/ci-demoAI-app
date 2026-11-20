@@ -17,11 +17,35 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
+  shutdown: graceful
+
+spring.lifecycle:
+  timeout-per-shutdown-phase: 20s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
 
 github:
   token: ${GITHUB_TOKEN:}
   owner: ${GITHUB_OWNER:}
   repository: ${GITHUB_REPOSITORY:}
+
+pipeline:
+  provider: ${PIPELINE_PROVIDER:github}
+
+tekton:
+  api-url: ${TEKTON_API_URL:}
+  namespace: ${TEKTON_NAMESPACE:}
+  token: ${TEKTON_TOKEN:}
+  insecure-skip-tls-verify: ${TEKTON_INSECURE_SKIP_TLS_VERIFY:false}
 
 openai:
   api-key: ${OPENAI_API_KEY:}
